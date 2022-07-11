@@ -1130,12 +1130,32 @@ class Texture:
         result["source"] = from_union([from_int, from_none], self.source)
         return result
 
+class Lightmap:
+    """A lightmap."""
+
+    def __init__(self, uri, baking_mode):
+        self.uri = uri
+        self.baking_mode = baking_mode
+
+    @staticmethod
+    def from_dict(obj):
+        assert isinstance(obj, dict)
+        uri = from_union([from_str, from_none], obj.get("uri"))
+        baking_mode = from_union([from_str, from_none], obj.get("baking_mode"))
+        return Lightmap(uri, baking_mode)
+
+    def to_dict(self):
+        result = {}
+        result["uri"] = from_union([from_str, from_none], self.uri)
+        result["bakingMode"] = from_union([from_str, from_none], self.baking_mode)
+        return result
+
 
 class Gltf:
     """The root object for a glTF asset."""
 
     def __init__(self, accessors, animations, asset, buffers, buffer_views, cameras, extensions, extensions_required,
-                 extensions_used, extras, images, materials, meshes, nodes, samplers, scene, scenes, skins, textures):
+                 extensions_used, extras, images, materials, meshes, nodes, samplers, scene, scenes, skins, textures, lightmaps):
         self.accessors = accessors
         self.animations = animations
         self.asset = asset
@@ -1155,6 +1175,7 @@ class Gltf:
         self.scenes = scenes
         self.skins = skins
         self.textures = textures
+        self.lightmaps = lightmaps
 
     @staticmethod
     def from_dict(obj):
@@ -1179,8 +1200,9 @@ class Gltf:
         scenes = from_union([lambda x: from_list(Scene.from_dict, x), from_none], obj.get("scenes"))
         skins = from_union([lambda x: from_list(Skin.from_dict, x), from_none], obj.get("skins"))
         textures = from_union([lambda x: from_list(Texture.from_dict, x), from_none], obj.get("textures"))
+        lightmaps = from_union([lambda x: from_list(Lightmap.from_dict, x), from_none], obj.get("lightmaps"))
         return Gltf(accessors, animations, asset, buffers, buffer_views, cameras, extensions, extensions_required,
-                    extensions_used, extras, images, materials, meshes, nodes, samplers, scene, scenes, skins, textures)
+                    extensions_used, extras, images, materials, meshes, nodes, samplers, scene, scenes, skins, textures, lightmaps)
 
     def to_dict(self):
         result = {}
@@ -1211,6 +1233,8 @@ class Gltf:
         result["skins"] = from_union([lambda x: from_list(lambda x: to_class(Skin, x), x), from_none], self.skins)
         result["textures"] = from_union([lambda x: from_list(lambda x: to_class(Texture, x), x), from_none],
                                         self.textures)
+        result["lightmaps"] = from_union([lambda x: from_list(lambda x: to_class(Lightmap, x), x), from_none],
+                                          self.lightmaps)
         return result
 
 

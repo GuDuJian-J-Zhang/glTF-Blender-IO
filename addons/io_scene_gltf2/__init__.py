@@ -435,6 +435,30 @@ class ExportGLTF2_Base:
         default=False
     )
 
+    export_lightmap_shadow: BoolProperty(
+        name='Shadow',
+        description='Export baked shadow map',
+        default=False
+    )
+
+    lightmap_shadow: StringProperty(
+        name='Name',
+        description='Input baked shadow map\'s name here',
+        default=''
+    )
+
+    export_lightmap_ao: BoolProperty(
+        name='AO',
+        description='Export baked ao map',
+        default=False
+    )
+
+    lightmap_ao: StringProperty(
+        name='Name',
+        description='Input baked ao map\'s name here',
+        default=''
+    )
+
     export_lights: BoolProperty(
         name='Punctual Lights',
         description='Export directional, point, and spot lights. '
@@ -613,6 +637,13 @@ class ExportGLTF2_Base:
             export_settings['gltf_morph_tangent'] = self.export_morph_tangent
         else:
             export_settings['gltf_morph_tangent'] = False
+
+        export_settings['export_lightmap_shadow'] = self.export_lightmap_shadow
+        if self.export_lightmap_shadow:
+            export_settings['lightmap_shadow'] = self.lightmap_shadow
+        export_settings['export_lightmap_ao'] = self.export_lightmap_ao
+        if self.export_lightmap_ao:
+            export_settings['lightmap_ao'] = self.lightmap_ao
 
         export_settings['gltf_lights'] = self.export_lights
         export_settings['gltf_displacement'] = self.export_displacement
@@ -957,6 +988,90 @@ class GLTF_PT_export_animation_skinning(bpy.types.Panel):
         layout.active = operator.export_skins
         layout.prop(operator, 'export_all_influences')
 
+class GLTF_PT_export_lightmaps(bpy.types.Panel):
+    bl_space_type = 'FILE_BROWSER'
+    bl_region_type = 'TOOL_PROPS'
+    bl_label = "Lightmaps"
+    bl_parent_id = "FILE_PT_operator"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        sfile = context.space_data
+        operator = sfile.active_operator
+
+        return operator.bl_idname == "EXPORT_SCENE_OT_gltf"
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False
+
+        sfile = context.space_data
+        operator = sfile.active_operator
+
+class GLTF_PT_export_lightmaps_shadow(bpy.types.Panel):
+    bl_space_type = 'FILE_BROWSER'
+    bl_region_type = 'TOOL_PROPS'
+    bl_label = "Shadow"
+    bl_parent_id = "GLTF_PT_export_lightmaps"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        sfile = context.space_data
+        operator = sfile.active_operator
+
+        return operator.bl_idname == "EXPORT_SCENE_OT_gltf"
+
+    def draw_header(self, context):
+        sfile = context.space_data
+        operator = sfile.active_operator
+        self.layout.prop(operator, "export_lightmap_shadow", text="")
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        sfile = context.space_data
+        operator = sfile.active_operator
+
+        layout.active = operator.export_lightmap_shadow
+
+        layout.prop(operator, 'lightmap_shadow')
+
+class GLTF_PT_export_lightmaps_ao(bpy.types.Panel):
+    bl_space_type = 'FILE_BROWSER'
+    bl_region_type = 'TOOL_PROPS'
+    bl_label = "AO"
+    bl_parent_id = "GLTF_PT_export_lightmaps"
+    bl_options = {'DEFAULT_CLOSED'}
+
+    @classmethod
+    def poll(cls, context):
+        sfile = context.space_data
+        operator = sfile.active_operator
+
+        return operator.bl_idname == "EXPORT_SCENE_OT_gltf"
+
+    def draw_header(self, context):
+        sfile = context.space_data
+        operator = sfile.active_operator
+        self.layout.prop(operator, "export_lightmap_ao", text="")
+
+    def draw(self, context):
+        layout = self.layout
+        layout.use_property_split = True
+        layout.use_property_decorate = False  # No animation.
+
+        sfile = context.space_data
+        operator = sfile.active_operator
+
+        layout.active = operator.export_lightmap_ao
+
+        layout.prop(operator, 'lightmap_ao')
+
 class GLTF_PT_export_user_extensions(bpy.types.Panel):
     bl_space_type = 'FILE_BROWSER'
     bl_region_type = 'TOOL_PROPS'
@@ -1195,6 +1310,9 @@ classes = (
     GLTF_PT_export_animation_export,
     GLTF_PT_export_animation_shapekeys,
     GLTF_PT_export_animation_skinning,
+    GLTF_PT_export_lightmaps,
+    GLTF_PT_export_lightmaps_shadow,
+    GLTF_PT_export_lightmaps_ao,
     GLTF_PT_export_user_extensions,
     ImportGLTF2,
     GLTF_PT_import_user_extensions

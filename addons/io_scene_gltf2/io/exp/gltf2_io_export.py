@@ -55,6 +55,7 @@ def save_gltf(gltf, export_settings, encoder, glb_buffer):
         "images",
         "skins",
         "accessors",
+        "lightmaps",
         "bufferViews",
         "samplers",
         "buffers"

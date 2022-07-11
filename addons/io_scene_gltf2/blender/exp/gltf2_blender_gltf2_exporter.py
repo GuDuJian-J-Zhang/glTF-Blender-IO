@@ -67,7 +67,8 @@ class GlTF2Exporter:
             scene=-1,
             scenes=[],
             skins=[],
-            textures=[]
+            textures=[],
+            lightmaps=[]
         )
 
         self.__buffer = gltf2_io_buffer.Buffer()
@@ -87,7 +88,8 @@ class GlTF2Exporter:
             gltf2_io.Sampler: self.__gltf.samplers,
             gltf2_io.Scene: self.__gltf.scenes,
             gltf2_io.Skin: self.__gltf.skins,
-            gltf2_io.Texture: self.__gltf.textures
+            gltf2_io.Texture: self.__gltf.textures,
+            gltf2_io.Lightmap: self.__gltf.lightmaps
         }
 
         self.__propertyTypeLookup = [
@@ -196,6 +198,15 @@ class GlTF2Exporter:
             raise RuntimeError("Tried to add animation to finalized glTF file")
 
         self.__traverse(animation)
+    
+    def add_lightmap(self, lightmap: gltf2_io.Lightmap):
+        """
+        Add a lightmap to the glTF.
+        """
+        if self.__finalized:
+            raise RuntimeError("Tried to add lightmap to finalized glTF file")
+
+        self.__traverse(lightmap)
 
     def __to_reference(self, property):
         """

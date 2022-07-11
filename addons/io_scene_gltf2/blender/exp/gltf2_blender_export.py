@@ -23,6 +23,7 @@ from io_scene_gltf2.blender.exp import gltf2_blender_gather
 from io_scene_gltf2.blender.exp.gltf2_blender_gltf2_exporter import GlTF2Exporter
 from io_scene_gltf2.io.com.gltf2_io_debug import print_console, print_newline
 from io_scene_gltf2.io.exp import gltf2_io_export
+from io_scene_gltf2.io.com import gltf2_io
 from io_scene_gltf2.io.exp import gltf2_io_draco_compression_extension
 from io_scene_gltf2.io.exp.gltf2_io_user_extensions import export_user_extensions
 
@@ -61,6 +62,7 @@ def save(context, export_settings):
 def __export(export_settings):
     exporter = GlTF2Exporter(export_settings)
     __gather_gltf(exporter, export_settings)
+    __gather_lightmaps(exporter, export_settings)
     buffer = __create_buffer(exporter, export_settings)
     exporter.finalize_images()
 
@@ -86,6 +88,12 @@ def __gather_gltf(exporter, export_settings):
         exporter.add_scene(scene, idx==active_scene_idx)
     for animation in animations:
         exporter.add_animation(animation)
+
+def __gather_lightmaps(exporter, export_settings):
+    if export_settings['export_lightmap_shadow']:
+        exporter.add_lightmap(gltf2_io.Lightmap(export_settings['lightmap_shadow'], 'Shadow'))
+    if export_settings['export_lightmap_ao']:
+        exporter.add_lightmap(gltf2_io.Lightmap(export_settings['lightmap_ao'], 'AO'))
 
 
 def __create_buffer(exporter, export_settings):
